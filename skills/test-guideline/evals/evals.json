@@ -1,0 +1,20 @@
+{
+  "skill_name": "test-guideline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to write tests for our order processing service. It talks to a payment gateway (Stripe) and saves orders to our Postgres database. How should I structure the tests and what should I mock?",
+      "expected_output": "Should recommend unit tests for domain logic, integration tests for DB interactions using real Postgres, and mocks only for Stripe (unmanaged out-of-process dependency). Should mention AAA pattern and the humble object pattern if the service mixes orchestration with business logic."
+    },
+    {
+      "id": 2,
+      "prompt": "My teammate wrote a test that uses reflection to call a private method called calculateDiscount(). The test name is test_calculateDiscount_returns_15_percent. Should I approve this PR?",
+      "expected_output": "Should flag both anti-patterns: testing private methods directly (suggest testing through public API or extracting to its own class) and the test name including the method name. Should suggest a better name describing the scenario in domain language."
+    },
+    {
+      "id": 3,
+      "prompt": "We have 500 tests but our CI takes 20 minutes and half the tests break every time we refactor. What's going wrong and how do we fix it?",
+      "expected_output": "Should diagnose likely over-mocking (London school), implementation-coupled assertions, and possibly too many integration/e2e tests vs unit tests. Should recommend evaluating each test on the four dimensions and deleting low-value tests. Should mention the test pyramid and black-box approach."
+    }
+  ]
+}
