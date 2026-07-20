@@ -1,6 +1,10 @@
 ---
 name: unit-testing-ppp-book
 description: "Knowledge base from \"Unit Testing Principles, Practices, and Patterns\" by Vladimir Khorikov. Use when applying Khorikov's frameworks for test quality evaluation, mocking decisions, observable behavior vs implementation details, integration testing, database testing, functional architecture, or unit testing anti-patterns."
+license: MIT
+metadata:
+  version: "1.0"
+  author: ariana.maghsoudi82@gmail.com
 ---
 
 <!-- argument-hint: [topic, framework name, or chapter number] -->
