@@ -13,7 +13,10 @@
       }
     ]
   },
-  "enabledPlugins": {},
+  "enabledPlugins": {
+    "claude-code-setup@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
+  },
   "extraKnownMarketplaces": {
     "anthropic-agent-skills": {
       "source": {
