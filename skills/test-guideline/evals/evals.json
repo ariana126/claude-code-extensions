@@ -15,6 +15,26 @@
       "id": 3,
       "prompt": "We have 500 tests but our CI takes 20 minutes and half the tests break every time we refactor. What's going wrong and how do we fix it?",
       "expected_output": "Should diagnose likely over-mocking (London school), implementation-coupled assertions, and possibly too many integration/e2e tests vs unit tests. Should recommend evaluating each test on the four dimensions and deleting low-value tests. Should mention the test pyramid and black-box approach."
+    },
+    {
+      "id": 4,
+      "prompt": "Here's our SubscriptionService.renewSubscription() method. It's 180 lines. It loads the customer from the DB, checks whether their plan is still offered, works out proration if they upgraded mid-cycle, applies any loyalty discount, charges their card via Stripe, writes the new billing period back to the DB, and publishes a 'subscription.renewed' event to RabbitMQ. Every test I write for it needs about 40 lines of mock setup. How do I get this under test properly?",
+      "expected_output": "Should classify the method as overcomplicated code (high complexity AND many collaborators) and argue that the fix is refactoring rather than better mocks. Should apply the Humble Object pattern: extract proration, plan-eligibility and discount logic into a collaborator-free domain layer unit-tested heavily, leaving a thin orchestrator covered by one or two integration tests. Should note that merely extracting an IStripeClient/IRepository interface and mocking it is not sufficient. Bonus: domain events for the RabbitMQ publish, real Postgres for the DB, mock only Stripe and RabbitMQ."
+    },
+    {
+      "id": 5,
+      "prompt": "I have a function generateInvoiceReport(customerId) that reads the customer's transactions from the database, uses Date.now() to work out which ones fall in the current billing period, formats a report, and writes it to /var/reports/. I want to test the date-bucketing and formatting logic but I can't figure out how without a real filesystem and freezing the clock. Any ideas?",
+      "expected_output": "Should identify the hidden inputs and outputs explicitly: Date.now() and the DB read are hidden inputs, the file write is a hidden output. Should propose a functional core / mutable shell split following read-decide-act — the shell fetches transactions and supplies the current time as a parameter, the core takes transactions plus a timestamp and returns a value (report content plus target path) rather than writing, and the shell performs the write. Should note this makes output-based testing possible, which is the most maintainable style, and that the shell should end up with no branching. Should NOT recommend mocking the filesystem or a clock abstraction as the primary fix."
+    },
+    {
+      "id": 6,
+      "prompt": "our integration tests hit a real postgres in docker and the suite takes 9 minutes which is killing us. i was thinking of switching the test config to sqlite in-memory since our queries are all pretty standard ORM stuff, should be a drop-in change and would make it basically instant. any reason not to?",
+      "expected_output": "Should push back clearly on the vendor swap: an in-memory database is not functionally consistent with Postgres (type coercion, constraint enforcement, transaction semantics, dialect differences), producing false positives and, worse, false negatives — so the protection against regressions the suite exists to provide evaporates. Should note the ORM does not fully insulate you from this. Should offer the actual levers for speed instead: a local per-developer instance rather than shared, cleanup at the start of each test rather than backup/restore, running sequentially but pushing logic out of the DB layer so fewer tests need the database at all, and reducing the number of integration tests by moving logic into a collaborator-free domain layer. Version or edition may differ from production; the vendor must not."
+    },
+    {
+      "id": 7,
+      "prompt": "Engineering leadership just mandated 90% line coverage across all repos before we're allowed to ship the Q3 release, currently we're at 61%. I've got two weeks. What's the fastest way to get there?",
+      "expected_output": "Should push back on the coverage number as a target while acknowledging the signal: coverage is a good negative indicator and a bad positive one — low coverage reliably means something is untested, but high coverage proves almost nothing, since a test can execute a line without asserting anything meaningful about it. Should warn that mandating a percentage makes the cheapest path writing worthless tests (assertion-free tests, tests of trivial getters and DTOs) which add maintenance cost and false positives without protection. Should recommend using the coverage report to locate gaps and then judging each on merit — prioritising the domain-model quadrant (high complexity or domain significance, few collaborators) and explicitly not testing trivial code. Ideally should suggest reporting back to leadership with what was actually covered and why, rather than silently hitting the number."
     }
   ]
 }

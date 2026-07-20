@@ -111,3 +111,81 @@ bugs. They score near zero on the "bug detection" dimension.
 **Fix**: Don't test code that has no meaningful logic, no domain
 significance, and no collaboration between components. Save the effort
 for code where bugs can actually hide.
+
+## 10. Mock Chains
+
+**Symptom**: A mock configured to return another mock, which returns another
+mock, two or three layers deep before the test can reach the value it needs.
+
+**Why it's bad**: Each link encodes a fact about the implementation's object
+graph. The test now fails not only when behavior changes, but whenever anyone
+reshapes the path between two collaborators — and the setup is long enough that
+nobody reads it. This is the single largest driver of unmaintainable suites.
+
+**Fix**: The depth is the message: the SUT is reaching too far. Pass in the value
+it actually needs rather than the object that can produce the object that can
+produce it. If the chain crosses into an out-of-process dependency, restructure
+so the data is gathered before the call (see `testing-styles.md`).
+
+## 11. Substituting an In-Memory Database
+
+**Symptom**: Tests run against SQLite, H2, or an in-memory fake while production
+runs Postgres, MySQL, or SQL Server.
+
+**Why it's bad**: The substitute is not functionally consistent with the real
+database. Type coercion, constraint enforcement, transaction semantics, and
+dialect-specific SQL all differ. You get false positives from behavior that only
+breaks in the fake, and false negatives from bugs it cannot reproduce — so the
+protection you think you bought never existed.
+
+**Fix**: Use the same DBMS vendor as production; version or edition may differ.
+If the motivation was speed, the real levers are a local instance per developer,
+cleanup at the start of the test, and pushing logic out of the database layer so
+fewer tests need it at all. See `database-testing.md`.
+
+## 12. Testing Repositories Directly
+
+**Symptom**: A dedicated test class per repository, verifying that `save()`
+saves and `findById()` finds.
+
+**Why it's bad**: Repositories sit in the controllers quadrant — barely any
+complexity, one out-of-process dependency. So these tests carry the full cost of
+an integration test while the regressions they catch are already caught by the
+integration tests covering the business operations that use them.
+
+**Fix**: Cover repositories incidentally, through the tests for the operations
+they serve. Where a repository holds real complexity, extract that into a
+self-contained algorithm and unit test it separately.
+
+## 13. Reimplementing the Algorithm in the Test
+
+**Symptom**: The test computes its expected value using the same logic as the
+production code — looping over the same collection, applying the same formula.
+
+**Why it's bad**: The test agrees with the implementation by construction, so it
+passes even when both are wrong. It also breaks whenever the implementation is
+refactored, giving you the worst of both pillars: no protection *and* no
+resistance to refactoring.
+
+**Fix**: Hardcode results calculated outside the SUT — by hand, from the
+specification, or from a known good source. If hardcoding feels impractical
+because there are too many cases, that's a signal to use a parameterized test
+with a handful of worked examples rather than to generate expectations in code.
+
+## 14. Business Logic Fragmentation
+
+**Symptom**: A domain check migrates into the controller or application service
+because it was easier to write there — a status guard, a validity condition, a
+state precondition.
+
+**Why it's bad**: The domain object can no longer enforce its own invariants, so
+it becomes possible to perform the operation without the check by calling the
+object from anywhere else. Meanwhile the controller accumulates conditions and
+drifts toward the overcomplicated quadrant, where every branch demands an
+expensive integration test.
+
+**Fix**: Keep decisions in the domain layer. Where the controller needs to know
+the outcome of a decision, use the CanExecute/Execute pattern — see
+`code-classification.md`. Genuine exceptions exist (checks needing
+out-of-process data, such as uniqueness across the system), and those belong in
+the controller with integration coverage.
