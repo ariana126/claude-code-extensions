@@ -1,0 +1,20 @@
+{
+  "skill_name": "screenplay-guideline",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our Cucumber + Playwright e2e suite has step definitions like this:\n\nWhen('the user completes checkout', async () => {\n  await page.click('#cart-icon');\n  await page.fill('#card-number', '4242424242424242');\n  await page.fill('#cvv', '123');\n  await page.click('[data-test=\"submit-payment\"]');\n  await page.waitForSelector('.confirmation');\n});\n\nWe have about 60 of these and every time the frontend team renames a class we spend a day fixing them. What should we be doing differently?",
+      "expected_output": "Should diagnose the skipped Domain layer — the Specification layer (step definition) reaching directly into the Integration layer (Playwright API) — and explain the three-layer architecture with the layering rule. Should refactor into named Screenplay tasks in domain language (e.g. CompleteCheckout, PayWith) composed from interactions, with an actor and attemptsTo. Should explain that naming by goal rather than mechanism is what localizes selector changes to one layer. Should not simply suggest extracting Page Objects, though it may note Lean Page Objects have a narrow role for reporting widget state."
+    },
+    {
+      "id": 2,
+      "prompt": "Our acceptance suite takes 40 minutes. Profiling shows most of it is setup — nearly every scenario starts by registering a new account through our 4-step signup wizard, which has animations and a deliberate 2s delay on the payment step. We do need to test that the signup wizard itself works. Any ideas short of just running more parallel workers?",
+      "expected_output": "Should propose blended testing: exercise the signup wizard through the UI at least once (it is a feature under test), but perform it via API everywhere it is merely a precondition. Should present the grammatical voice convention — Given + passive ('Tracy has signed up') maps to an API call, When + active ('Tracy signs up') maps to the UI — and explain that the two voices produce different Cucumber expressions so the split happens automatically. Should show grouped task variations (SignUp.using vs SignUp.viaApiUsing) under a goal-named class, and mention building a test-specific setup API if no suitable endpoint exists."
+    },
+    {
+      "id": 3,
+      "prompt": "I'm starting e2e tests for a loan origination app. A customer submits an application, then a credit officer reviews it, and for amounts over 50k a senior underwriter has to co-approve. Each role sees a different dashboard. I was going to write a PageObject per screen but I'm not sure how to handle three different people in one test.",
+      "expected_output": "Should recommend Screenplay over Page Objects specifically because Page Object and Action-class designs assume a single actor and blur boundaries between roles' activities — multi-actor workflows are the canonical case for the pattern. Should show naming actors in the scenario as data, a Cast granting abilities, actorCalled/actorInTheSpotlight, and pronoun resolution. Should model each role's activities as tasks in domain language. May reasonably suggest personas via TakeNotes/Notepad and using API setup for the earlier workflow stages when a later stage is what the scenario is actually about."
+    }
+  ]
+}
