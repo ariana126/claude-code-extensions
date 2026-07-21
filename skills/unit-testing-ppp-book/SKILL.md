@@ -182,5 +182,3 @@ Get more code into that category with **functional architecture**: a **functiona
 ## Scope & Limits
 
 This skill covers the book's content only. Code examples are C#/.NET (xUnit, Moq, Fluent Assertions, Entity Framework), but Khorikov states the concepts are non-language-specific and apply to any object-oriented language. For hands-on implementation in your codebase, combine with project-specific tools. The book predates 2020, so specific library APIs may have moved on; the principles have not.
-
-Related: the `bdd-in-action-book` skill covers behavior-driven development, which shares this book's emphasis on testing behavior over implementation but approaches specification from the requirements side.

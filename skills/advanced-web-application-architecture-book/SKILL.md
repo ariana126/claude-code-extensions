@@ -189,4 +189,4 @@ Most web applications are *under*-engineered. But: small infrastructural scripts
 
 ## Scope & Limits
 
-This skill covers the book's content only. Examples are PHP (Symfony/Laravel/Doctrine idioms), but the principles are language-agnostic. For hands-on implementation in your codebase, combine with project-specific tools. Related skills: `object-design-style-guide-book` (same author, object-level rules), `unit-testing-ppp-book` (test design), `bdd-in-action-book` (scenarios and living documentation).
+This skill covers the book's content only. Examples are PHP (Symfony/Laravel/Doctrine idioms), but the principles are language-agnostic. For hands-on implementation in your codebase, combine with project-specific tools.

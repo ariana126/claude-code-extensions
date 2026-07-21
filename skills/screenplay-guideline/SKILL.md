@@ -30,9 +30,8 @@ tests, based on the **Screenplay Pattern** as presented in *BDD in Action, 2nd
 Edition* by John Ferguson Smart and Jan Molak. All examples use **Serenity/JS**
 (TypeScript).
 
-Screenplay picks up where unit testing leaves off. For unit and integration test
-philosophy — what to mock, the AAA pattern, test naming — see the sibling
-`test-guideline` skill instead. This skill is about the layer above.
+Screenplay picks up where unit testing leaves off — it is the layer above unit
+and integration testing.
 
 ## When to Reach for Screenplay
 
