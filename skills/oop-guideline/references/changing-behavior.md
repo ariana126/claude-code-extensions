@@ -8,16 +8,20 @@ The governing idea: **replace parts, don't change them.** Modify the structure
 of the object graph rather than the code inside a class. Changing code risks
 breaking it; swapping a dependency doesn't.
 
+The rungs below are GoF patterns, named in their headings. For choosing a
+pattern from an axis of variation — and for the places this skill deliberately
+overrides GoF — see `design-patterns.md`.
+
 ## Contents
 
 1. [The Escalation Ladder](#1-the-escalation-ladder)
 2. [Rung 1 — Configurable Value](#2-rung-1--configurable-value)
-3. [Rung 2 — Replaceable Dependency](#3-rung-2--replaceable-dependency)
-4. [Rung 3 — Composition](#4-rung-3--composition)
-5. [Rung 4 — Decoration](#5-rung-4--decoration)
-6. [Rung 5 — Notification Objects and Event Listeners](#6-rung-5--notification-objects-and-event-listeners)
+3. [Rung 2 — Replaceable Dependency (Strategy)](#3-rung-2--replaceable-dependency-strategy)
+4. [Rung 3 — Composition (Composite)](#4-rung-3--composition-composite)
+5. [Rung 4 — Decoration (Decorator)](#5-rung-4--decoration-decorator)
+6. [Rung 5 — Notification Objects and Event Listeners (Observer)](#6-rung-5--notification-objects-and-event-listeners-observer)
 7. [Why Inheritance Isn't on the Ladder](#7-why-inheritance-isnt-on-the-ladder)
-8. [Template Method → Composition](#8-template-method--composition)
+8. [Template Method → Composition (Strategy)](#8-template-method--composition-strategy)
 9. [final and private by Default](#9-final-and-private-by-default)
 10. [Traits for Entities and Value Objects](#10-traits-for-entities-and-value-objects)
 
@@ -53,7 +57,7 @@ Two things to avoid here:
   know and supply a value they shouldn't care about. Configuration is
   constructor data; task data is method data.
 
-## 3. Rung 2 — Replaceable Dependency
+## 3. Rung 2 — Replaceable Dependency (Strategy)
 
 Extract an abstraction for the varying part and inject it. Remember the
 abstraction is two things — an interface *and* a name free of implementation
@@ -96,7 +100,7 @@ postcondition checks became possible.** The abstraction gave the JSON-specific
 behavior somewhere to live, and that somewhere had a natural place for its own
 guards.
 
-## 4. Rung 3 — Composition
+## 4. Rung 3 — Composition (Composite)
 
 An object built from other objects satisfying the same interface. Use it to
 build richer behavior out of several implementations:
@@ -120,7 +124,7 @@ class MultipleLoaders implements FileLoader {
 loaders before anyone asks is generalization before it's needed — introduce the
 abstraction early, add implementations on demand.
 
-## 5. Rung 4 — Decoration
+## 5. Rung 4 — Decoration (Decorator)
 
 A class implementing the same interface it wraps, adding behavior before or
 after delegating. Use it for cross-cutting concerns: caching, logging, retries,
@@ -178,7 +182,7 @@ of code to delete a few log statements. When hooking before and after existing
 calls is the *only* goal, aspect-oriented tooling is the pragmatic alternative.
 He doesn't pretend composition is free.
 
-## 6. Rung 5 — Notification Objects and Event Listeners
+## 6. Rung 5 — Notification Objects and Event Listeners (Observer)
 
 Use these to add behavior to *other* services without modifying the original.
 Two shapes, with a real trade-off between them:
@@ -221,11 +225,12 @@ A "genuine type hierarchy" means the subclass is a *special case* of the parent 
 `Paragraph extends ContentBlock`. That's a statement about what things *are*, not
 a technique for varying behavior.
 
-## 8. Template Method → Composition
+## 8. Template Method → Composition (Strategy)
 
-Template method is better than raw subclassing — internals stay private and only
-one hook is exposed — but it's strictly weaker than composition. Everything it
-does, composition does, plus composability and decoration.
+This is GoF's Template Method, and this skill treats it as a waypoint rather
+than a destination. It's better than raw subclassing — internals stay private
+and only one hook is exposed — but it's strictly weaker than composition.
+Everything it does, composition does, plus composability and decoration.
 
 The conversion is one mechanical step: **promote the `abstract protected` method
 to a regular `public` method on an injected object, then mark the class `final`

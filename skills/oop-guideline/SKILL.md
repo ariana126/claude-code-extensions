@@ -4,23 +4,25 @@ description: >
   Use this skill when designing, writing, or reviewing object-oriented code in
   any language. Triggers include: reviewing or writing a class, service, entity,
   or value object; deciding what belongs in a constructor versus a method;
-  adding a dependency; wondering whether a getter should exist; making a class
-  configurable or extensible; choosing an exception type; naming methods;
-  handling nulls; or reacting to a class that "does too much" or "is hard to
-  test". Also use when the user mentions "value object", "entity", "DTO",
-  "immutability", "CQS", "named constructor", "null object", "anemic domain
-  model", "dependency injection", "service locator", "decorator", "composition
-  over inheritance", "write model", "read model", or "domain event". Use it
-  even if the user just says "review this class", "is
-  this good design?", or "how should I structure this?" without naming a
-  methodology — this skill provides the methodology. For chapter-level depth on
-  the source book, defer to the object-design-style-guide-book skill.
+  adding a dependency; wondering whether a getter should exist; choosing an
+  exception type; making a class configurable or extensible; choosing or
+  applying a design pattern; or reacting to a class that "does too
+  much" or "is hard to test". Also use when the user mentions "value object",
+  "entity", "DTO", "immutability", "CQS", "null object",
+  "anemic domain model", "dependency injection", "service locator",
+  "composition over inheritance", "read model", "domain event", "design
+  pattern", "strategy", "decorator", "observer", "singleton", "template
+  method", "which pattern should I use", a "big switch on a type field", or a
+  "subclass explosion". Use it even if the user just says "review this class"
+  or "is this good design?" without naming a methodology — this skill provides
+  the methodology.
 license: MIT
 metadata:
-  version: "1.0"
+  version: "1.1"
   author: ariana.maghsoudi82@gmail.com
   sources:
     - "Object Design Style Guide by Matthias Noback"
+    - "Design Patterns: Elements of Reusable Object-Oriented Software by Gamma, Helm, Johnson & Vlissides"
 ---
 
 # OOP Guideline Skill
@@ -37,6 +39,11 @@ justify rather than a coin flip.
 
 The book deliberately does *not* tell you which objects you need or what their
 responsibilities are. It tells you how to build the ones you've decided on.
+
+Where behavior has to vary, the second source is *Design Patterns* by the Gang
+of Four — used here for its selection method ("what varies?") and its
+vocabulary, not as a catalogue to work through. Noback stays the spine: where
+the two disagree, `references/design-patterns.md` records which wins and why.
 
 ## Start Here: The Two Types of Objects
 
@@ -376,6 +383,53 @@ configurable", "add logging/caching/retries to this service", or any time
 subclassing is on the table — it works the ladder in full, with the
 template-method conversion and the decoration trade-offs Noback himself flags.
 
+## Choosing a Pattern
+
+The rungs above are patterns — Strategy, Composite, Decorator, Observer — and
+naming them helps only if you pick them the right way round. **Name the axis of
+variation first; the pattern follows from it.** A pattern chosen before you can
+say what varies is indirection with nothing to spend it on.
+
+| What you want free to change                 | Pattern   |
+|----------------------------------------------|-----------|
+| An algorithm                                 | Strategy  |
+| The states of an object, and its transitions | State     |
+| Responsibilities, without subclassing        | Decorator |
+| The interface to an object you can't change  | Adapter   |
+| The interface to a subsystem                 | Facade    |
+| Structure of a part-whole hierarchy          | Composite |
+| How many objects depend on this one          | Observer  |
+| When and how a request is carried out        | Command   |
+| How an object is accessed                    | Proxy     |
+
+Three tells worth carrying in your head:
+
+- **A growing conditional on a type field** → Strategy. **On a status field,
+  with rules about which status follows which** → State.
+- **N × M subclasses for N features × M variants** → Bridge, Decorator, or
+  Strategy.
+- **Clients that know a subsystem's internal call order** → Facade.
+
+And the distinctions that actually get confused: Decorator changes the **skin**,
+Strategy the **guts**; State owns its **transitions** while Strategy is an
+algorithm the **client** picks; Adapter **changes** an interface, Decorator
+**extends** behavior behind it, Proxy **controls access** through it.
+
+Two cautions. **Don't apply a pattern until you need the flexibility** — same
+threshold as "abstract early, generalize late" above. And the pattern gives you
+the shape, never the mechanics: the participants are still `final`, still take
+required constructor arguments, still obey CQS. A `Strategy` with an optional
+logger and a `setMode()` is a correctly shaped pattern built out of everything
+this skill forbids.
+
+**Read `references/design-patterns.md`** when selecting a pattern, or when GoF
+advice appears to contradict a rule here — it holds the full selection tables,
+the seven places this skill deliberately overrides GoF (Singleton, Template
+Method, Prototype, Factory Method, Builder, Memento, mutable Observer
+registration), and which patterns suit services versus other objects. For a
+pattern's own Applicability and Consequences, use the `design-patterns-book`
+skill.
+
 ## Read Models and Layers
 
 **Never hand a modifiable entity to a client that shouldn't modify it.** Even if
@@ -434,6 +488,10 @@ ones worth carrying in your head:
   model by accident, and the view can call anything on it.
 - **Injecting a service into an entity or value object** — via constructor,
   setter, or a static accessor.
+- **Singleton or any global access point** — a service locator with better
+  manners; the dependency still never appears in the constructor signature.
+- **A pattern applied before the axis of variation is known** — indirection
+  with nothing varying.
 
 ## Review Checklist
 
@@ -455,5 +513,8 @@ ones worth carrying in your head:
       test?
 - [ ] Do abstractions name the question rather than the mechanism?
 - [ ] Is behavior varied by replacing parts rather than by subclassing?
+- [ ] If a pattern is in use, can you name the axis of variation it buys?
+- [ ] Is there a conditional on a type or status field that wants to be a
+      Strategy or a State?
 - [ ] Is every class `final` and every member `private` unless justified?
 - [ ] Is any read-only client holding a write model?

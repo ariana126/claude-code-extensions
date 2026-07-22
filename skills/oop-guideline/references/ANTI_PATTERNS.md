@@ -401,3 +401,36 @@ class has no independent reason to exist.
 **Fix**: escalate deliberately — a better variable name, then an extracted
 private method, and a new class *only* when the code grows too large, needs
 testing on its own, or crosses a system boundary.
+
+## 31. Singleton and Other Global Access Points
+
+**Symptom**: `Config.getInstance()`, `Logger.instance()`, a module-level mutable
+object imported everywhere, or any static accessor reached from inside a class.
+
+**Why it's bad**: it's anti-pattern §1 with better manners. The dependency never
+appears in the constructor signature, so a class with four hidden collaborators
+reads as a class with none and no design pressure ever builds up (§6). It also
+welds every client to a lifetime decision that isn't the class's business, and
+tests end up sharing mutable state across cases.
+
+**Fix**: "there must be exactly one" is a *wiring* fact, not a property of the
+class. Instantiate it once at the composition root and inject it like any other
+dependency. The class itself stays ordinary and instantiable, which is what
+makes it testable.
+
+## 32. Pattern-First Design
+
+**Symptom**: an Abstract Factory producing one product, a Strategy interface
+with a single implementation, a Builder for an object with three fields — chosen
+because the pattern was known, not because something varied.
+
+**Why it's bad**: every pattern buys variation with indirection, paid for in
+complexity and often performance. With no axis of variation, you've paid the
+price and bought nothing. Worse, the interface is shaped by a guess, so the
+second implementation — if it ever arrives — usually doesn't fit it.
+
+**Fix**: name the axis of variation before naming the pattern; if you can't
+finish the sentence "I want *this* to be free to change", there's no pattern to
+apply yet. Then escalate as in §29 and §30 — abstract early, generalize late,
+and let a real second case shape the interface. See
+`design-patterns.md` for selecting by what varies.
